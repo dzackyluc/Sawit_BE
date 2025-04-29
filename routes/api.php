@@ -4,19 +4,34 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\auth\authController;
-use App\Http\Controllers\Api\ArtikelController;
-use App\Http\Controllers\Api\PengepulController;
+use App\Http\Controllers\Api\artikelController;
+use App\Http\Controllers\Api\pengepulController;
 use App\Http\Controllers\Api\janjitemuController;
-use App\Http\Controllers\Api\DaftarHargaController;
-
+use App\Http\Controllers\Api\daftarhargaController;
+use App\Http\Controllers\Api\taskController;
+use App\Http\Controllers\Api\FcmTokenController;
+use App\Http\Controllers\Api\transaksiController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login',    [AuthController::class, 'login']);
 
 Route::resource('users', UserController::class);
-Route::resource('artikel', ArtikelController::class);
-Route::resource('pengepul', PengepulController::class);
-Route::post('pengepul/import', [PengepulController::class, 'import']);
+Route::resource('artikel', artikelController::class);
+Route::resource('pengepul', pengepulController::class);
+Route::post('pengepul/import', [pengepulController::class, 'import']);
 Route::resource('janji_temu', janjitemuController::class);
-Route::resource('daftar_harga', DaftarHargaController::class);
+Route::resource('daftar_harga', daftarhargaController::class);
+Route::apiResource('task', taskController::class);
+Route::resource('transaksi', transaksiController::class);
+Route::post('/fcm-token/update', [FcmTokenController::class, 'update']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+
+});
+
+
+
+
+
 

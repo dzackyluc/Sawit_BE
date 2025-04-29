@@ -1,0 +1,32 @@
+<?php
+
+
+namespace App\Notifications;
+
+use Illuminate\Notifications\Notification;
+use NotificationChannels\Fcm\FcmChannel;
+use NotificationChannels\Fcm\FcmMessage;
+use NotificationChannels\Fcm\Resources\Notification as FcmNotification;
+
+class TaskAssigned extends Notification
+{
+    protected $task;
+
+    public function __construct($task)
+    {
+        $this->task = $task;
+    }
+    public function via($notifiable) { return [FcmChannel::class]; }
+
+    public function toFcm($notifiable)
+    {
+        return FcmMessage::create()
+            ->setTopic(null)
+            ->setToken($notifiable->fcm_token)
+            ->setNotification(FcmNotification::create([
+                'title' => 'Tugas Baru',
+                'body' => 'Kamu punya tugas baru',
+            ]))
+            ->setData(['task_id' => $this->task->id]);
+    }
+}

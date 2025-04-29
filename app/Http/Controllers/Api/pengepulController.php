@@ -28,24 +28,27 @@ class pengepulController extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi data yang dikirim dari frontend
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'no_phone' => 'nullable|string|max:20',
             'password' => 'required|string|min:6|confirmed',
-            'no_phone'    => 'nullable|string|max:20',
         ]);
 
+        // Buat user baru
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'no_phone'    => $validated['no_phone'] ?? null,
-            'role'     => 'pengepul',
+            'no_phone' => $validated['no_phone'] ?? null,
+            'role' => 'pengepul',
         ]);
 
+        // Kembalikan response sukses
         return response()->json([
             'success' => true,
-            'data'    => $user,
+            'data' => $user,
             'message' => 'Pengepul created successfully',
         ], 201);
     }

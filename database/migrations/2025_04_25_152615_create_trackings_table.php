@@ -12,23 +12,22 @@ class CreateTrackingsTable extends Migration
     {
         Schema::create('trackings', function (Blueprint $table) {
             $table->id();
-
-            // FK ke task
+        
             $table->foreignId('task_id')
                 ->constrained('tasks')
                 ->onDelete('cascade');
-
-            // FK ke pengepul (user)
+        
             $table->foreignId('pengepul_id')
                 ->constrained('users')
                 ->onDelete('cascade');
-
+        
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-
-            // timestamp otomatis untuk catat waktu update
+        
+            // timestamps() otomatis catat waktu update → gunakan untuk timeline
             $table->timestamps();
         });
+        
     }
 
     public function down(): void

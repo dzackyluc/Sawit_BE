@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Web Push Test</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; }
+    #status { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Web Push Notification Demo</h1>
+  <button id="enable-btn">Enable Notifications</button>
+  <p id="status"></p>
+
+  <script>
+    // helper: Base64URL → Uint8Array
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+      const raw = window.atob(base64);
+      return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
+    }
+
+    async function initPush() {
+      // register service worker
+      if (!('serviceWorker' in navigator && 'PushManager' in window)) {
+        document.getElementById('status').textContent = 'Push not supported in this browser.';
+        return;
+      }
+
+      try {
+        const registration = await navigator.serviceWorker.register('/push-sw.js');
+        document.getElementById('status').textContent = 'Service Worker registered.';
+
+        document.getElementById('enable-btn').onclick = async () => {
+          // ask permission
+          const permission = await Notification.requestPermission();
+          if (permission !== 'granted') {
+            document.getElementById('status').textContent = 'Permission denied.';
+            return;
+          }
+
+          document.getElementById('status').textContent = 'Permission granted. Fetching VAPID key...';
+
+          // fetch VAPID public key
+          const res = await fetch('/api/config/vapid-key');
+          if (!res.ok) throw new Error('Failed to fetch VAPID key: ' + res.status);
+          const { publicKey } = await res.json();
+
+          // subscribe to push
+          const applicationServerKey = urlBase64ToUint8Array(publicKey);
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey
+          });
+
+          document.getElementById('status').textContent = 'Subscribed! Sending subscription to server...';
+
+          // send subscription to backend
+          // replace {YOUR_TOKEN} with your actual Bearer token if protected
+          await fetch('/api/push/subscribe', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer 9|nDkD9hGF9sA5J95RbkCPbQ0Bfi6QcksElytz9iqJ8709f1f1'
+            },
+            body: JSON.stringify(subscription)
+          });
+
+          document.getElementById('status').textContent = 'Subscription saved successfully!';
+        };
+      } catch (err) {
+        console.error(err);
+        document.getElementById('status').textContent = 'Error: ' + err.message;
+      }
+    }
+
+    initPush();
+  </script>
+</body>
+</html>

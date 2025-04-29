@@ -17,17 +17,15 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('fcm_token')->nullable();
+            $table->string('remember_token', 100)->nullable();  // remember_token didefinisikan di sini
+            $table->string('fcm_token')->nullable();  // Kolom fcm_token setelah remember_token
             $table->string('no_phone')->nullable();
-            $table->string('alamat')->nullable();
-            $table->enum('role', ['pengepul','petani', 'manager']);
+            $table->enum('role', ['pengepul', 'petani', 'manager']);
             $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->string('photo')->nullable();
-
-            $table->rememberToken();
             $table->timestamps();
         });
-
+        
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
