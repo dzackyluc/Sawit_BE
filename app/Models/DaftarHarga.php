@@ -9,5 +9,5 @@ class DaftarHarga extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['harga', 'tanggal'];
+    protected $fillable = ['harga'];
 }

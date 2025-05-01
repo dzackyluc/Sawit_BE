@@ -17,7 +17,6 @@ class DaftarHargaController extends Controller
     {
         $request->validate([
             'harga' => 'required|numeric',
-            'tanggal' => 'required|date',
         ]);
 
         $data = DaftarHarga::create($request->all());

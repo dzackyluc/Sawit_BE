@@ -19,9 +19,11 @@ Route::resource('users', UserController::class);
 Route::resource('artikel', artikelController::class);
 Route::resource('pengepul', pengepulController::class);
 Route::post('pengepul/import', [pengepulController::class, 'import']);
-Route::resource('janji_temu', janjitemuController::class);
+Route::apiResource('janji-temu', JanjiTemuController::class)->only(['index', 'store','show','update','destroy']);
+Route::post('janji-temu/{id}/approve', [JanjiTemuController::class, 'approve']);
+Route::post('janji-temu/{id}/reject', [JanjiTemuController::class, 'reject']);
 Route::resource('daftar_harga', daftarhargaController::class);
-Route::apiResource('task', taskController::class);
+Route::resource('task', taskController::class);
 Route::resource('transaksi', transaksiController::class);
 Route::post('/fcm-token/update', [FcmTokenController::class, 'update']);
 

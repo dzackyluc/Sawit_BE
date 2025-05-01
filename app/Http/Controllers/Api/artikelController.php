@@ -26,26 +26,34 @@ class artikelController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'title.required'   => 'Judul artikel wajib diisi.',
+            'content.required' => 'Konten artikel wajib diisi.',
+            'image.image'      => 'File gambar harus berupa gambar.',
+            'image.max'        => 'Ukuran gambar maksimal 2MB.',
+        ];
+    
         $data = $request->validate([
             'title'   => 'required|string|max:255',
             'content' => 'required|string',
             'image'   => 'nullable|image|max:2048',
-        ]);
-
+        ], $messages);
+    
         if ($request->hasFile('image')) {
             // simpan di public/images/artikels
             $path = $request->file('image')->store('images/artikels', 'public');
             $data['image'] = $path;
         }
-
+    
         $artikel = Artikel::create($data);
-
+    
         return response()->json([
             'success' => true,
             'data'    => $artikel,
             'message' => 'Artikel berhasil dibuat',
         ], 201);
     }
+    
 
     /**
      * Display the specified resource.
@@ -63,12 +71,19 @@ class artikelController extends Controller
      */
     public function update(Request $request, Artikel $artikel)
     {
+        $messages = [
+            'title.required'   => 'Judul artikel wajib diisi.',
+            'content.required' => 'Konten artikel wajib diisi.',
+            'image.image'      => 'File gambar harus berupa gambar.',
+            'image.max'        => 'Ukuran gambar maksimal 2MB.',
+        ];
+    
         $data = $request->validate([
             'title'   => 'required|string|max:255',
             'content' => 'required|string',
             'image'   => 'nullable|image|max:2048',
-        ]);
-
+        ], $messages);
+    
         if ($request->hasFile('image')) {
             // hapus file lama bila ada
             if ($artikel->image) {
@@ -77,15 +92,15 @@ class artikelController extends Controller
             $path = $request->file('image')->store('images/artikels', 'public');
             $data['image'] = $path;
         }
-
+    
         $artikel->update($data);
-
+    
         return response()->json([
             'success' => true,
             'data'    => $artikel,
             'message' => 'Artikel berhasil diperbarui',
         ], 200);
-    }
+    }    
 
     /**
      * Remove the specified resource from storage.
