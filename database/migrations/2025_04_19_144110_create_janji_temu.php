@@ -25,6 +25,7 @@ return new class extends Migration
             $table->decimal('petani_lng', 10, 7)->nullable();
             $table->enum('status', ['pending','approved','rejected'])
                 ->default('pending');
+            $table->text('alasan_reject')->nullable();
             $table->timestamps();
         });
         

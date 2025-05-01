@@ -13,7 +13,7 @@ class Transaksi extends Model
     
     // Kolom yang bisa diisi
     protected $fillable = [
-        'petani_id',
+        'jnaji_temu_id',
         'pengepul_id',
         'total_harga',
     ];
@@ -21,7 +21,7 @@ class Transaksi extends Model
     // Relasi dengan User untuk Petani
     public function petani()
     {
-        return $this->belongsTo(User::class, 'petani_id');  // Menghubungkan dengan ID Petani
+        return $this->belongsTo(User::class, 'janji_temu_id');  // Menghubungkan dengan ID Petani
     }
 
     // Relasi dengan User untuk Pengepul
