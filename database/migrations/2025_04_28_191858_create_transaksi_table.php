@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('transaksi', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('petani_id');   // foreign key ke users.id
-            $table->unsignedBigInteger('pengepul_id'); // foreign key ke users.id
-            $table->decimal('total_harga', 15, 2);      // Total harga transaksi
+            $table->unsignedBigInteger('janji_temu_id'); // foreign key ke janji_temu
+            $table->unsignedBigInteger('pengepul_id');   // foreign key ke users.id
+            $table->decimal('jumlah', 15);
+            $table->decimal('total_harga', 15);
             $table->timestamps();
-        
-            // Tambahkan foreign key constraint
-            $table->foreign('petani_id')->references('id')->on('users')->onDelete('cascade');  // Hubungkan dengan ID petani
-            $table->foreign('pengepul_id')->references('id')->on('users')->onDelete('cascade'); // Hubungkan dengan ID pengepul
-        });        
+
+            // Foreign key constraints
+            $table->foreign('janji_temu_id')->references('id')->on('janji_temu')->onDelete('cascade');
+            $table->foreign('pengepul_id')->references('id')->on('users')->onDelete('cascade');
+        });
     }
 
     /**
