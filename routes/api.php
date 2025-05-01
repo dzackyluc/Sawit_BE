@@ -18,6 +18,8 @@ Route::post('login',    [AuthController::class, 'login']);
 Route::resource('users', UserController::class);
 Route::resource('artikel', artikelController::class);
 Route::resource('pengepul', pengepulController::class);
+// Route::post('/pengepul', [PengepulController::class, 'store']);
+
 Route::post('pengepul/import', [pengepulController::class, 'import']);
 Route::resource('janji_temu', janjitemuController::class);
 Route::resource('daftar_harga', daftarhargaController::class);

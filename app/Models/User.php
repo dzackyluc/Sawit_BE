@@ -6,11 +6,11 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use NotificationChannels\WebPush\HasPushSubscriptions;
+// use NotificationChannels\WebPush\HasPushSubscriptions;
 
 class User extends Authenticatable
 {
-    use HasPushSubscriptions, Notifiable, HasApiTokens, HasFactory, Notifiable;
+    use Notifiable, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -20,9 +20,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'no_phone',	
         'password',
         'role',
-        'fcm_token',
     ];
 
     /**

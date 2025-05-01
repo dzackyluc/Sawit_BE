@@ -45,7 +45,7 @@ class pengepulController extends Controller
             'role' => 'pengepul',
         ]);
 
-        // Kembalikan response sukses
+        // Kembalikan response sukses   
         return response()->json([
             'success' => true,
             'data' => $user,
