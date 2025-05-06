@@ -10,7 +10,11 @@ class DaftarHargaController extends Controller
 {
     public function index()
     {
-        return response()->json(DaftarHarga::all());
+        $hargas = DaftarHarga::all();
+        return response()->json([
+            'success' => true,
+            'data'    => $hargas,
+        ], 200);
     }
 
     public function store(Request $request)
@@ -33,10 +37,10 @@ class DaftarHargaController extends Controller
     public function update(Request $request, $id)
     {
         $data = DaftarHarga::findOrFail($id);
-        $data->update($request->only('harga', 'tanggal'));
-
+        $data->update($request->only('harga'));
         return response()->json($data);
     }
+    
 
     public function destroy($id)
     {

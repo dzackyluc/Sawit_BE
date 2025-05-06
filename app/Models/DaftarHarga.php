@@ -9,5 +9,7 @@ class DaftarHarga extends Model
 {
     use HasFactory;
 
+    protected $table = 'daftar_harga';
+    
     protected $fillable = ['harga'];
 }

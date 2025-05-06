@@ -26,12 +26,14 @@ class AuthController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
+            'no_phone' => 'nullable|string',
             'role'     => 'nullable|in:pengepul,petani,manager',
         ], $messages);
     
         $user = User::create([
             'name'     => $validated['name'],
             'email'    => $validated['email'],
+            'no_phone'    => $validated['no_phone'],
             'password' => Hash::make($validated['password']),
             'role'     => 'petani',
         ]);
