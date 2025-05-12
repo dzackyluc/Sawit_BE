@@ -9,14 +9,9 @@ use Illuminate\Http\Request;
 class DaftarHargaController extends Controller
 {
     public function index()
-{
-    $data = DaftarHarga::all()->map(function ($item) {
-        $item->bulan = $item->tanggal->format('F'); // Menambahkan nama bulan
-        return $item;
-    });
-    return response()->json($data);
-}
-
+    {
+        return response()->json(DaftarHarga::all());
+    }
 
     public function store(Request $request)
     {
@@ -25,22 +20,6 @@ class DaftarHargaController extends Controller
         ]);
 
         $data = DaftarHarga::create($request->all());
-
-        $latestData = DaftarHarga::where('tanggal', '<', $request->tanggal)
-            ->orderBy('tanggal', 'desc')
-            ->first();
-
-        if ($latestData) {
-            $diff = $request->harga - $latestData->harga;
-            $kenaikan = $diff > 0 ? $diff : 0;
-            $penurunan = $diff < 0 ? abs($diff) : 0;
-            $presentase = $diff !== 0 ? abs(($diff / $latestData->harga) * 100) : 0;
-
-            $request->merge([
-                'kenaikan' => $kenaikan,
-                'presentase' => $presentase,
-            ]);
-        }
 
         return response()->json($data, 201);
     }
@@ -64,5 +43,4 @@ class DaftarHargaController extends Controller
         DaftarHarga::destroy($id);
         return response()->json(null, 204);
     }
-
 }
