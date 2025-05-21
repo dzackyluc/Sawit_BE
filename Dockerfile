@@ -22,13 +22,16 @@ WORKDIR /var/www
 # Copy application files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Install Composer dependencies
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions for Laravel
+# Laravel permission fixes
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
-CMD ["php-fpm"]
+# Expose HTTP port (instead of 9000)
+EXPOSE 3000
+
+# Start Laravel using PHP built-in server
+CMD php -S 0.0.0.0:3000 -t public
