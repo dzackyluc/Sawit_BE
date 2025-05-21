@@ -1,5 +1,5 @@
 # Use official PHP image with extensions needed for Laravel
-FROM php:8.2-fpm
+FROM php:8.2-fpm-slim
 
 # Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
