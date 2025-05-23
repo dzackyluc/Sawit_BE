@@ -118,7 +118,7 @@ class TaskController extends Controller
             $pengepul = \App\Models\User::find($newPengepulId);
             if ($pengepul) {
                 try {
-                    Mail::to($pengepul->email)->send(new \App\Mail\TaskAssignedMail($task));
+                    Mail::to($pengepul->email)->send(new TaskAssignedMail($task));
                 } catch (\Exception $e) {
                     \Log::error('Gagal kirim email update task: ' . $e->getMessage());
                 }

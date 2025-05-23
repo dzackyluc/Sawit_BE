@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tracking;
 use Illuminate\Http\Request;
 
-class trackingController extends Controller
+class TrackingController extends Controller
 {
     // Simpan update lokasi
     public function store(Request $request)
