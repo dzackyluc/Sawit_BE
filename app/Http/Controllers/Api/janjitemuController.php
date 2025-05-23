@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\JanjiTemu;
-use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class JanjiTemuController extends Controller
 {
@@ -14,118 +14,62 @@ class JanjiTemuController extends Controller
      */
     public function index()
     {
-        $janji = JanjiTemu::with('petani')->get();
-
+        $janjiList = JanjiTemu::with('petani')->get();
         return response()->json([
             'success' => true,
-            'data' => $janji,
-        ]);
+            'data'    => $janjiList,
+        ], 200);
     }
 
     /**
-     * Tampilkan satu janji temu
-     */
-    public function show($id)
-    {
-        $janji = JanjiTemu::with('petani')->findOrFail($id);
-
-        return response()->json([
-            'success' => true,
-            'data' => $janji,
-        ]);
-    }
-
-    /**
-     * Store janji temu baru
+     * Store a newly created janji temu.
+     * Expect front-end to provide latitude & longitude from a map picker.
      */
     public function store(Request $request)
     {
-        // Validasi input yang dikirimkan petani
-        $validated = $request->validate([
-            'petani_id' => 'required|exists:users,id',  // Pastikan petani_id valid
-            'no_hp' => 'required|string',
-            'alamat' => 'required|string',
-            'tanggal' => 'required|date',
-            'petani_lat' => 'required|numeric',
-            'petani_lng' => 'required|numeric',
+        $data = $request->validate([
+            'petani_id'   => 'required|exists:users,id',
+            'alamat'      => 'required|string|max:500',
+            'no_hp'       => 'required|string|max:20',
+            'tanggal'     => 'required|date',
+            'petani_lat'  => 'required|numeric',
+            'petani_lng'  => 'required|numeric',
         ]);
 
-        // Menyimpan data janji temu
-        $janji = JanjiTemu::create([
-            'petani_id' => $validated['petani_id'],
-            'no_hp' => $validated['no_hp'],
-            'alamat' => $validated['alamat'],
-            'tanggal' => $validated['tanggal'],
-            'petani_lat' => $validated['petani_lat'],
-            'petani_lng' => $validated['petani_lng'],
-            'status' => 'pending',  // Status awal adalah pending
-        ]);
+        $janji = JanjiTemu::create($data);
 
         return response()->json([
             'success' => true,
-            'message' => 'Janji temu berhasil disimpan dan menunggu approval',
-            'data' => $janji,
+            'data'    => $janji,
+            'message' => 'Janji temu created successfully',
         ], 201);
     }
 
     /**
-     * Approve janji temu
+     * Display the specified janji temu.
      */
-    public function approve($id)
+    public function show($id)
     {
-        $janji = JanjiTemu::findOrFail($id);
-        $janji->update(['status' => 'approved', 'alasan_reject' => null]);
-
+        $janji = JanjiTemu::with('petani', 'tasks')->findOrFail($id);
         return response()->json([
             'success' => true,
-            'message' => 'Janji temu telah disetujui',
-            'data' => $janji,
-        ]);
+            'data'    => $janji,
+        ], 200);
     }
 
     /**
-     * Reject janji temu dengan alasan
-     */
-    public function reject(Request $request, $id)
-    {
-        $request->validate([
-            'alasan_reject' => 'required|string',
-        ]);
-
-        $janji = JanjiTemu::findOrFail($id);
-        $janji->update([
-            'status' => 'rejected',
-            'alasan_reject' => $request->input('alasan_reject'),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Janji temu ditolak',
-            'data' => $janji,
-        ]);
-    }
-
-    /**
-     * Update data janji temu (misal ubah tanggal atau alamat)
+     * Update the specified janji temu.
      */
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'alamat' => 'sometimes|string',
-            'no_hp' => 'sometimes|string',
-            'tanggal' => 'sometimes|date',
-            'petani_lat' => 'sometimes|numeric',
-            'petani_lng' => 'sometimes|numeric',
-        ]);
-
         $janji = JanjiTemu::findOrFail($id);
         $janji->update($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Data janji temu diperbarui',
-            'data' => $janji,
-        ]);
+            'data'    => $janji,
+            'message' => 'Janji temu updated successfully',
+        ], 200);
     }
 
     /**

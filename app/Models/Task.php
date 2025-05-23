@@ -10,7 +10,10 @@ class Task extends Model
 {
     use HasFactory;
 
+    protected $table = 'tasks'; 
+
     protected $fillable = [
+        'nama_task',
         'janji_temu_id',
         'pengepul_id',
         'status',
@@ -30,13 +33,5 @@ class Task extends Model
     public function pengepul(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pengepul_id');
-    }
-
-    /**
-     * Akses petani melalui janjiTemu.
-     */
-    public function petani(): BelongsTo
-    {
-        return $this->janjiTemu()->belongsTo(User::class, 'petani_id');
     }
 }

@@ -9,23 +9,41 @@ class JanjiTemu extends Model
 {
     use HasFactory;
 
-    // Tambahkan kolom alasan_reject jika belum ada di migrasi
+    protected $table = 'janji_temu';
+
     protected $fillable = [
-        'petani_id',
+        'nama_petani',
+        'email',
         'alamat',
         'no_hp',
         'tanggal',
         'petani_lat',
         'petani_lng',
-        'status',
-        'alasan_reject',
     ];
 
     /**
-     * Relasi ke User (petani)
+     * Cast attributes to appropriate types.
+     * 'tanggal' as datetime, coords as float.
      */
-    public function petani()
+    protected $casts = [
+        'tanggal'     => 'datetime',
+        'petani_lat'  => 'float',
+        'petani_lng'  => 'float',
+    ];
+
+    /**
+     * Relationship: JanjiTemu belongs to a Petani (User).
+     */
+    public function petani(): BelongsTo
     {
         return $this->belongsTo(User::class, 'petani_id');
+    }
+
+    /**
+     * Relationship: JanjiTemu may have many Tasks.
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'janji_temu_id');
     }
 }
