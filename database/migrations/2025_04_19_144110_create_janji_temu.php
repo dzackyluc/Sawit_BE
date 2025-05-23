@@ -13,16 +13,13 @@ return new class extends Migration
     {
         Schema::create('janji_temu', function (Blueprint $table) {
             $table->id();
-        
-            // FK ke users sebagai petani
-            $table->foreignId('petani_id')
-                ->constrained('users')
-                ->onDelete('cascade');
+            $table->string('nama_petani');
+            $table->string('email');
             $table->string('alamat');
             $table->string('no_hp');
-            $table->timestamp('tanggal');
-            $table->decimal('petani_lat', 10, 7)->nullable();
-            $table->decimal('petani_lng', 10, 7)->nullable();
+            $table->dateTime('tanggal');
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
             $table->enum('status', ['pending','approved','rejected'])
                 ->default('pending');
             $table->text('alasan_reject')->nullable();
@@ -37,5 +34,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('janji_temu');
+        
     }
 };

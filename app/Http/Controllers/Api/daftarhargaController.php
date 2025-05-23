@@ -9,9 +9,14 @@ use Illuminate\Http\Request;
 class DaftarHargaController extends Controller
 {
     public function index()
-    {
-        return response()->json(DaftarHarga::all());
-    }
+{
+    $data = DaftarHarga::all()->map(function ($item) {
+        $item->bulan = $item->tanggal->format('F'); // Menambahkan nama bulan
+        return $item;
+    });
+    return response()->json($data);
+}
+
 
     public function store(Request $request)
     {
@@ -33,10 +38,10 @@ class DaftarHargaController extends Controller
     public function update(Request $request, $id)
     {
         $data = DaftarHarga::findOrFail($id);
-        $data->update($request->only('harga', 'tanggal'));
-
+        $data->update($request->only('harga'));
         return response()->json($data);
     }
+    
 
     public function destroy($id)
     {

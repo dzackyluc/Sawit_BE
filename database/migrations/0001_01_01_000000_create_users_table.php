@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('remember_token', 100)->nullable();  // remember_token didefinisikan di sini
-            $table->string('fcm_token')->nullable();  // Kolom fcm_token setelah remember_token
+            $table->string('google_id')->nullable()->after('password');
             $table->string('no_phone')->nullable();
             $table->enum('role', ['pengepul', 'petani', 'manager']);
             $table->enum('status', ['active', 'inactive'])->default('inactive');
