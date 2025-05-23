@@ -10,22 +10,24 @@ class JanjiTemu extends Model
     use HasFactory;
 
     // Tambahkan kolom alasan_reject jika belum ada di migrasi
+    protected $table = 'janji_temu';
     protected $fillable = [
-        'petani_id',
+        'nama_petani',
+        'email',
         'alamat',
         'no_hp',
         'tanggal',
-        'petani_lat',
-        'petani_lng',
+        'latitude',
+        'longitude',
         'status',
         'alasan_reject',
     ];
 
-    /**
-     * Relasi ke User (petani)
-     */
-    public function petani()
-    {
-        return $this->belongsTo(User::class, 'petani_id');
+        protected $casts = [
+        'tanggal' => 'datetime',
+    ];
+
+    public function tasks() {
+    return $this->hasMany(Task::class, 'janji_temu_id');
     }
 }

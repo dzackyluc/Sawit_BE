@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+
 
 class AuthController extends Controller
 {
@@ -17,6 +21,7 @@ class AuthController extends Controller
             'email.required'    => 'Email wajib diisi.',
             'email.email'       => 'Format email tidak valid.',
             'email.unique'      => 'Email sudah digunakan.',
+            'no_phone.regex' => 'Nomor telepon harus diawali 08 dan diikuti 8-12 digit.',
             'password.required' => 'Password wajib diisi.',
             'password.min'      => 'Password minimal 6 karakter.',
             'password.confirmed'=> 'Konfirmasi password tidak cocok.',
@@ -26,7 +31,7 @@ class AuthController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'no_phone' => 'nullable|string',
+            'no_phone' => 'nullable|string|regex:/^08[0-9]{8,12}$/',
             'role'     => 'nullable|in:pengepul,petani,manager',
         ], $messages);
     
@@ -85,7 +90,6 @@ class AuthController extends Controller
     }
     
     
-
     // Logout (revoke current token)
     public function logout(Request $request)
     {

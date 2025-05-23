@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('daftar_harga', function (Blueprint $table) {
             $table->id();
-            $table->decimal('harga', 12, 2);
+            $table->decimal('harga', 15);
             $table->timestamps();
         });
     }        

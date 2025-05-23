@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-        
+            $table->string('nama_task');
             // FK ke janji_temu
             $table->foreignId('janji_temu_id')
                 ->constrained('janji_temu')
@@ -26,16 +26,17 @@ return new class extends Migration
         
             // status assignment pengepul
             $table->enum('status', [
-                'pending',          
-                'accepted',         
+                'pending',                 
                 'rejected',         
                 'in_progress',      
                 'completed',        
             ])->default('pending');
-        
+
+            $table->decimal('pul_latitude', 10, 7)->nullable();
+            $table->decimal('pul_longitude', 10, 7)->nullable();
             $table->timestamps();
         });   
-    }
+}
 
     /**
      * Reverse the migrations.

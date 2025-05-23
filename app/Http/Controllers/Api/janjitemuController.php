@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\JanjiTemu;
 use App\Models\User;
+use Illuminate\Http\Request;
+use App\Mail\JanjiTemuNotification;
+use App\Mail\JanjiTemuRejectedMail;
+use Illuminate\Support\Facades\Mail;
+use App\Models\JanjiTemu;
+use Illuminate\Support\Facades\Validator;
 
 class JanjiTemuController extends Controller
 {
@@ -14,108 +18,132 @@ class JanjiTemuController extends Controller
      */
     public function index()
     {
-        $janji = JanjiTemu::with('petani')->get();
-
+        $janjitemu = JanjiTemu::all();
         return response()->json([
             'success' => true,
-            'data' => $janji,
-        ]);
+            'data'    => $janjitemu,
+        ], 200);
     }
 
     /**
      * Tampilkan satu janji temu
      */
-    public function show($id)
+    public function show(JanjiTemu $janjiTemu)
     {
-        $janji = JanjiTemu::with('petani')->findOrFail($id);
-
         return response()->json([
             'success' => true,
-            'data' => $janji,
-        ]);
+            'data'    => $janjiTemu,
+        ], 200);
     }
 
-    /**
-     * Store janji temu baru
-     */
+    // Code ketika petani mengajukan jadwal pertemuan
     public function store(Request $request)
     {
-        // Validasi input yang dikirimkan petani
-        $validated = $request->validate([
-            'petani_id' => 'required|exists:users,id',  // Pastikan petani_id valid
+        $validator = Validator::make($request->all(), [
+            'nama_petani' => 'required|string',
+            'email' => 'required|email',
             'no_hp' => 'required|string',
             'alamat' => 'required|string',
-            'tanggal' => 'required|date',
-            'petani_lat' => 'required|numeric',
-            'petani_lng' => 'required|numeric',
+            'tanggal' => 'required|date_format:Y-m-d H:i:s',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ], [
+            'required' => ':attribute wajib diisi.',
+            'email' => 'Format :attribute tidak valid.',
+            'date_format' => 'Format :attribute harus Y-m-d H:i:s.',
+            'numeric' => ':attribute harus berupa angka.',
+        ], [
+            // custom attributes agar underscore hilang dan terlihat rapi
+            'nama_petani' => 'Nama Petani',
+            'email' => 'Email',
+            'no_hp' => 'No HP',
+            'alamat' => 'Alamat',
+            'tanggal' => 'Tanggal',
+            'latitude' => 'Latitude',
+            'longitude' => 'Longitude',
         ]);
 
-        // Menyimpan data janji temu
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
         $janji = JanjiTemu::create([
-            'petani_id' => $validated['petani_id'],
+            'nama_petani' => $validated['nama_petani'],
+            'email' => $validated['email'],
             'no_hp' => $validated['no_hp'],
             'alamat' => $validated['alamat'],
             'tanggal' => $validated['tanggal'],
-            'petani_lat' => $validated['petani_lat'],
-            'petani_lng' => $validated['petani_lng'],
-            'status' => 'pending',  // Status awal adalah pending
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+            'status' => 'pending',
         ]);
+
+        $managerEmails = User::where('role', 'manager')->pluck('email');
+
+        foreach ($managerEmails as $email) {
+            Mail::to($email)->send(new JanjiTemuNotification($janji));
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Janji temu berhasil disimpan dan menunggu approval',
+            'message' => 'Janji temu berhasil disimpan dan notifikasi dikirim ke manager.',
             'data' => $janji,
         ], 201);
     }
 
     /**
-     * Approve janji temu
-     */
-    public function approve($id)
-    {
-        $janji = JanjiTemu::findOrFail($id);
-        $janji->update(['status' => 'approved', 'alasan_reject' => null]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Janji temu telah disetujui',
-            'data' => $janji,
-        ]);
-    }
-
-    /**
-     * Reject janji temu dengan alasan
+     * Reject janji temu
      */
     public function reject(Request $request, $id)
-    {
-        $request->validate([
-            'alasan_reject' => 'required|string',
-        ]);
+        {
+            $request->validate([
+                'alasan_reject' => 'required|string',
+            ]);
 
-        $janji = JanjiTemu::findOrFail($id);
-        $janji->update([
-            'status' => 'rejected',
-            'alasan_reject' => $request->input('alasan_reject'),
-        ]);
+            // Ambil satu model, bukan Collection
+            $janji = JanjiTemu::where('id', $id)->firstOrFail();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Janji temu ditolak',
-            'data' => $janji,
-        ]);
-    }
+            $janji->status        = 'rejected';
+            $janji->alasan_reject = $request->alasan_reject;
+            $janji->save();
+
+            // Kirim email penolakan (asumsikan kolom email benar‐benar string)
+            if (! empty($janji->email) && is_string($janji->email)) {
+                Mail::to($janji->email)
+                    ->send(new JanjiTemuRejectedMail($janji, $request->alasan_reject));
+            } else {
+                // kalau perlu, log supaya tahu nilai $janji->email apa
+                logger()->warning('Gagal kirim email penolakan: email invalid', [
+                    'email_field' => $janji->email,
+                    'janji_id'    => $janji->id,
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Janji temu ditolak dan email notifikasi dikirim',
+                'data'    => $janji,
+            ], 200);
+        }
 
     /**
-     * Update data janji temu (misal ubah tanggal atau alamat)
+     * Update janji temu
      */
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'alamat' => 'sometimes|string',
-            'no_hp' => 'sometimes|string',
-            'tanggal' => 'sometimes|date',
-            'petani_lat' => 'sometimes|numeric',
-            'petani_lng' => 'sometimes|numeric',
+            'nama_petani' => 'sometimes|string',
+            'no_hp'       => 'sometimes|string',
+            'alamat'      => 'sometimes|string',
+            'tanggal'     => 'sometimes|date_format:Y-m-d H:i:s',
+            'latitude'    => 'sometimes|numeric',
+            'longitude'   => 'sometimes|numeric',
         ]);
 
         $janji = JanjiTemu::findOrFail($id);
@@ -124,7 +152,7 @@ class JanjiTemuController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data janji temu diperbarui',
-            'data' => $janji,
+            'data'    => $janji,
         ]);
     }
 
