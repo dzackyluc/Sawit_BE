@@ -31,12 +31,18 @@ class TransaksiController extends Controller
     
         // Membuat transaksi baru dengan ID petani dan pengepul
         $transaksi = Transaksi::create([
-            'petani_id' => $validated['petani_id'],     // Menyimpan ID Petani
-            'pengepul_id' => $validated['pengepul_id'],  // Menyimpan ID Pengepul
-            'total_harga' => $validated['total_harga'],  // Menyimpan total harga transaksi
+            'task_id' => $validated['task_id'],
+            'jumlah' => $validated['jumlah'],
+            'total_harga' => $totalHarga,
         ]);
-    
-        // Mengembalikan response sukses dengan data transaksi
+
+        // Ubah status task menjadi completed
+        $task = Task::find($validated['task_id']);
+        if ($task) {
+            $task->status = 'completed'; // sesuaikan dengan nilai status yang kamu pakai
+            $task->save();
+        }
+
         return response()->json([
             'success' => true,
             'data' => $transaksi,
