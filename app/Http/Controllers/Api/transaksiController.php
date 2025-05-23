@@ -57,7 +57,7 @@ class TransaksiController extends Controller
         ]);
 
         // Ubah status task menjadi completed
-        $task = \App\Models\Task::find($validated['task_id']);
+        $task = Task::find($validated['task_id']);
         if ($task) {
             $task->status = 'completed'; // sesuaikan dengan nilai status yang kamu pakai
             $task->save();
