@@ -7,7 +7,7 @@ use App\Models\Artikel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class artikelController extends Controller
+class ArtikelController extends Controller
 {
     /**
      * Display a listing of the resource.

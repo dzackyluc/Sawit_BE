@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\PengepulImport;
 use App\Models\User;
 
-class pengepulController extends Controller
+class PengepulController extends Controller
 {
     /**
      * Display a listing of pengepul users.
@@ -39,7 +39,7 @@ class pengepulController extends Controller
             'email' => 'required|email|unique:users,email',
             'no_phone' => 'nullable|string|max:20',
             'password' => 'required|string|min:6|confirmed',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // validasi file foto
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $photoPath = null;
